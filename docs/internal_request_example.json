@@ -1,0 +1,131 @@
+{
+  "scenario_id": "normal_load",
+  "scenario_name": "Обычная нагрузка",
+  "description": "Небольшой поток типовых обращений без дефицита специалистов.",
+  "config": {
+    "allow_queue": true,
+    "queue_penalty": 9000,
+    "planning_horizon_minutes": 480
+  },
+  "operators": [
+    {
+      "id": "L1_EXP",
+      "level": 1,
+      "skills": [
+        "question",
+        "billing"
+      ],
+      "channels": [
+        "chat",
+        "email"
+      ],
+      "capacity_min": 240,
+      "max_chat_slots": 3,
+      "cost_per_minute": 8.0
+    },
+    {
+      "id": "L1_CHEAP",
+      "level": 1,
+      "skills": [
+        "question",
+        "billing"
+      ],
+      "channels": [
+        "chat",
+        "email"
+      ],
+      "capacity_min": 90,
+      "max_chat_slots": 2,
+      "cost_per_minute": 4.0
+    },
+    {
+      "id": "L2_STD",
+      "level": 2,
+      "skills": [
+        "incident",
+        "request",
+        "question"
+      ],
+      "channels": [
+        "chat",
+        "email",
+        "phone"
+      ],
+      "capacity_min": 160,
+      "max_chat_slots": 2,
+      "cost_per_minute": 10.0
+    },
+    {
+      "id": "L3_EXP",
+      "level": 3,
+      "skills": [
+        "network",
+        "incident",
+        "request"
+      ],
+      "channels": [
+        "phone",
+        "email"
+      ],
+      "capacity_min": 120,
+      "max_chat_slots": 0,
+      "cost_per_minute": 18.0
+    }
+  ],
+  "tickets": [
+    {
+      "id": "N1",
+      "level": 1,
+      "required_skill": "question",
+      "channel": "email",
+      "duration_min": 20,
+      "priority": "low",
+      "sla_resolution_min": 240
+    },
+    {
+      "id": "N2",
+      "level": 1,
+      "required_skill": "billing",
+      "channel": "chat",
+      "duration_min": 25,
+      "priority": "medium",
+      "sla_resolution_min": 180
+    },
+    {
+      "id": "N3",
+      "level": 1,
+      "required_skill": "question",
+      "channel": "chat",
+      "duration_min": 30,
+      "priority": "medium",
+      "sla_resolution_min": 180
+    },
+    {
+      "id": "N4",
+      "level": 2,
+      "required_skill": "incident",
+      "channel": "phone",
+      "duration_min": 35,
+      "priority": "high",
+      "sla_resolution_min": 120
+    },
+    {
+      "id": "N5",
+      "level": 2,
+      "required_skill": "request",
+      "channel": "email",
+      "duration_min": 40,
+      "priority": "medium",
+      "sla_resolution_min": 240
+    },
+    {
+      "id": "N6",
+      "level": 1,
+      "required_skill": "billing",
+      "channel": "email",
+      "duration_min": 15,
+      "priority": "low",
+      "sla_resolution_min": 240
+    }
+  ]
+}

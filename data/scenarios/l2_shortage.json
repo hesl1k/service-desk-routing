@@ -1,0 +1,20 @@
+{
+  "scenario_id": "l2_shortage",
+  "scenario_name": "Дефицит второй линии",
+  "description": "Сценарий с ограниченной мощностью L2 и дорогой резервной линией L3.",
+  "config": {"allow_queue": true, "queue_penalty": 12000, "planning_horizon_minutes": 480},
+  "operators": [
+    {"id": "L1_HELP", "level": 1, "skills": ["question", "billing"], "channels": ["chat", "email"], "capacity_min": 220, "max_chat_slots": 4, "cost_per_minute": 5.0},
+    {"id": "L2_EXP_A", "level": 2, "skills": ["incident", "request", "hardware"], "channels": ["chat", "email", "phone"], "capacity_min": 220, "max_chat_slots": 3, "cost_per_minute": 14.0},
+    {"id": "L2_LOW_B", "level": 2, "skills": ["incident", "request", "hardware"], "channels": ["chat", "email", "phone"], "capacity_min": 110, "max_chat_slots": 2, "cost_per_minute": 8.0},
+    {"id": "L3_RESERVE", "level": 3, "skills": ["incident", "request", "hardware", "network"], "channels": ["chat", "email", "phone"], "capacity_min": 260, "max_chat_slots": 1, "cost_per_minute": 22.0}
+  ],
+  "tickets": [
+    {"id": "S1", "level": 2, "required_skill": "incident", "channel": "chat", "duration_min": 35, "priority": "high", "sla_resolution_min": 120},
+    {"id": "S2", "level": 2, "required_skill": "request", "channel": "email", "duration_min": 35, "priority": "medium", "sla_resolution_min": 180},
+    {"id": "S3", "level": 2, "required_skill": "hardware", "channel": "phone", "duration_min": 45, "priority": "high", "sla_resolution_min": 120},
+    {"id": "S4", "level": 2, "required_skill": "incident", "channel": "email", "duration_min": 30, "priority": "medium", "sla_resolution_min": 180},
+    {"id": "S5", "level": 3, "required_skill": "network", "channel": "phone", "duration_min": 40, "priority": "critical", "sla_resolution_min": 90},
+    {"id": "S6", "level": 1, "required_skill": "question", "channel": "email", "duration_min": 20, "priority": "low", "sla_resolution_min": 240}
+  ]
+}

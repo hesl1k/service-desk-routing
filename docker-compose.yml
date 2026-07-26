@@ -1,0 +1,43 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    image: service-desk-api:latest
+    container_name: service-desk-api
+    ports:
+      - "8002:8002"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8002/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    security_opt:
+      - no-new-privileges:true
+
+  analytics:
+    build:
+      context: .
+      dockerfile: Dockerfile.analytics
+    depends_on:
+      api:
+        condition: service_healthy
+    volumes:
+      - ./data:/project/data
+    command: ["python", "-m", "analytics.pipeline", "--lp-source", "api", "--api-url", "http://api:8002"]
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile.dashboard
+    depends_on:
+      analytics:
+        condition: service_completed_successfully
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./data:/project/data:ro
+      - ./reports:/project/reports:ro
+    restart: unless-stopped

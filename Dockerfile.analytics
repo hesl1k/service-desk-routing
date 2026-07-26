@@ -1,0 +1,9 @@
+FROM python:3.12-slim
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
+WORKDIR /project
+COPY requirements-analytics.txt .
+RUN pip install --no-cache-dir -r requirements-analytics.txt
+COPY app ./app
+COPY analytics ./analytics
+COPY data ./data
+CMD ["python", "-m", "analytics.pipeline", "--lp-source", "api", "--api-url", "http://api:8002"]

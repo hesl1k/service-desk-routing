@@ -1,0 +1,772 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Service Desk Routing API",
+    "description": "Routes Service Desk tickets with an exact mixed-integer assignment model.",
+    "version": "2.0.0"
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object",
+                  "title": "Response Health Health Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/route": {
+      "post": {
+        "summary": "Route",
+        "operationId": "route_route_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/InternalRouteRequest"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ExternalRouteRequest"
+                  }
+                ],
+                "title": "Payload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RouteResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AgentLine": {
+        "type": "string",
+        "enum": [
+          "L1",
+          "L2",
+          "L3"
+        ],
+        "title": "AgentLine"
+      },
+      "Channel": {
+        "type": "string",
+        "enum": [
+          "chat",
+          "email",
+          "phone",
+          "portal"
+        ],
+        "title": "Channel"
+      },
+      "ExternalAgent": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Id"
+          },
+          "line": {
+            "$ref": "#/components/schemas/AgentLine"
+          },
+          "cost_per_minute": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Cost Per Minute"
+          },
+          "skills": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Skills"
+          },
+          "max_priority": {
+            "$ref": "#/components/schemas/Priority"
+          },
+          "channels": {
+            "items": {
+              "$ref": "#/components/schemas/Channel"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Channels"
+          },
+          "capacity_minutes": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Capacity Minutes"
+          },
+          "max_concurrent_chats": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Max Concurrent Chats"
+          },
+          "active_chats": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Active Chats",
+            "default": 0
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "line",
+          "cost_per_minute",
+          "skills",
+          "max_priority",
+          "channels",
+          "capacity_minutes",
+          "max_concurrent_chats"
+        ],
+        "title": "ExternalAgent"
+      },
+      "ExternalRouteRequest": {
+        "properties": {
+          "scenario_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scenario Id"
+          },
+          "planning_horizon_minutes": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Planning Horizon Minutes",
+            "default": 480.0
+          },
+          "tickets": {
+            "items": {
+              "$ref": "#/components/schemas/ExternalTicket"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Tickets"
+          },
+          "agents": {
+            "items": {
+              "$ref": "#/components/schemas/ExternalAgent"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Agents"
+          },
+          "handle_time_minutes": {
+            "additionalProperties": {
+              "additionalProperties": {
+                "type": "number"
+              },
+              "propertyNames": {
+                "$ref": "#/components/schemas/AgentLine"
+              },
+              "type": "object"
+            },
+            "type": "object",
+            "title": "Handle Time Minutes"
+          },
+          "config": {
+            "$ref": "#/components/schemas/RouteConfig"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "tickets",
+          "agents",
+          "handle_time_minutes"
+        ],
+        "title": "ExternalRouteRequest"
+      },
+      "ExternalTicket": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Id"
+          },
+          "type": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Type"
+          },
+          "priority": {
+            "$ref": "#/components/schemas/Priority"
+          },
+          "channel": {
+            "$ref": "#/components/schemas/Channel"
+          },
+          "sla_first_response_min": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Sla First Response Min"
+          },
+          "sla_resolution_min": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Sla Resolution Min"
+          },
+          "arrival_min": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Arrival Min",
+            "default": 0.0
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "priority",
+          "channel",
+          "sla_first_response_min",
+          "sla_resolution_min"
+        ],
+        "title": "ExternalTicket"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "InternalOperator": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Id"
+          },
+          "level": {
+            "type": "integer",
+            "maximum": 3.0,
+            "minimum": 1.0,
+            "title": "Level"
+          },
+          "skills": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Skills"
+          },
+          "channels": {
+            "items": {
+              "$ref": "#/components/schemas/Channel"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Channels"
+          },
+          "capacity_min": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Capacity Min"
+          },
+          "max_chat_slots": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Max Chat Slots"
+          },
+          "cost_per_minute": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Cost Per Minute"
+          },
+          "max_priority": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Priority"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "level",
+          "skills",
+          "channels",
+          "capacity_min",
+          "max_chat_slots",
+          "cost_per_minute"
+        ],
+        "title": "InternalOperator"
+      },
+      "InternalRouteRequest": {
+        "properties": {
+          "scenario_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scenario Id"
+          },
+          "scenario_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scenario Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "operators": {
+            "items": {
+              "$ref": "#/components/schemas/InternalOperator"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Operators"
+          },
+          "tickets": {
+            "items": {
+              "$ref": "#/components/schemas/InternalTicket"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Tickets"
+          },
+          "config": {
+            "$ref": "#/components/schemas/RouteConfig"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "operators",
+          "tickets"
+        ],
+        "title": "InternalRouteRequest"
+      },
+      "InternalTicket": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Id"
+          },
+          "level": {
+            "type": "integer",
+            "maximum": 3.0,
+            "minimum": 1.0,
+            "title": "Level"
+          },
+          "required_skill": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Required Skill"
+          },
+          "channel": {
+            "$ref": "#/components/schemas/Channel"
+          },
+          "duration_min": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Duration Min"
+          },
+          "duration_by_level": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "number"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration By Level"
+          },
+          "priority": {
+            "$ref": "#/components/schemas/Priority"
+          },
+          "sla_first_response_min": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sla First Response Min"
+          },
+          "sla_resolution_min": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sla Resolution Min"
+          },
+          "arrival_min": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Arrival Min",
+            "default": 0.0
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "level",
+          "channel",
+          "duration_min",
+          "priority"
+        ],
+        "title": "InternalTicket"
+      },
+      "Priority": {
+        "type": "string",
+        "enum": [
+          "low",
+          "medium",
+          "high",
+          "critical"
+        ],
+        "title": "Priority"
+      },
+      "RouteConfig": {
+        "properties": {
+          "allow_queue": {
+            "type": "boolean",
+            "title": "Allow Queue",
+            "default": true
+          },
+          "queue_penalty": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Queue Penalty",
+            "default": 10000.0
+          },
+          "sla_mode": {
+            "$ref": "#/components/schemas/SlaMode",
+            "default": "soft"
+          },
+          "sla_breach_penalty": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Sla Breach Penalty",
+            "default": 0.0
+          },
+          "planning_horizon_minutes": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Planning Horizon Minutes",
+            "default": 480.0
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "RouteConfig"
+      },
+      "RouteResponse": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/RouteStatus"
+          },
+          "backend": {
+            "type": "string",
+            "title": "Backend"
+          },
+          "objective_cost": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Objective Cost"
+          },
+          "processing_cost": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Processing Cost"
+          },
+          "penalty_cost": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Penalty Cost"
+          },
+          "queue_penalty_cost": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Queue Penalty Cost"
+          },
+          "sla_penalty_cost": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Sla Penalty Cost"
+          },
+          "assignments": {
+            "additionalProperties": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "type": "object",
+            "title": "Assignments"
+          },
+          "unassigned_ticket_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Unassigned Ticket Ids"
+          },
+          "solver_time_ms": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Solver Time Ms"
+          },
+          "scenario": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scenario"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          },
+          "ticket_results": {
+            "items": {
+              "$ref": "#/components/schemas/TicketResult"
+            },
+            "type": "array",
+            "title": "Ticket Results"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "backend",
+          "objective_cost",
+          "processing_cost",
+          "penalty_cost",
+          "queue_penalty_cost",
+          "sla_penalty_cost",
+          "assignments",
+          "unassigned_ticket_ids",
+          "solver_time_ms",
+          "ticket_results"
+        ],
+        "title": "RouteResponse"
+      },
+      "RouteStatus": {
+        "type": "string",
+        "enum": [
+          "optimal",
+          "infeasible",
+          "error"
+        ],
+        "title": "RouteStatus"
+      },
+      "SlaMode": {
+        "type": "string",
+        "enum": [
+          "hard",
+          "soft"
+        ],
+        "title": "SlaMode"
+      },
+      "TicketResult": {
+        "properties": {
+          "ticket_id": {
+            "type": "string",
+            "title": "Ticket Id"
+          },
+          "operator_id": {
+            "type": "string",
+            "title": "Operator Id"
+          },
+          "operator_level": {
+            "type": "integer",
+            "maximum": 3.0,
+            "minimum": 1.0,
+            "title": "Operator Level"
+          },
+          "expected_cost": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Expected Cost"
+          },
+          "expected_handle_time_min": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Expected Handle Time Min"
+          },
+          "start_time_min": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Start Time Min"
+          },
+          "first_response_time_min": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "First Response Time Min"
+          },
+          "resolution_time_min": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Resolution Time Min"
+          },
+          "within_sla": {
+            "type": "boolean",
+            "title": "Within Sla"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ticket_id",
+          "operator_id",
+          "operator_level",
+          "expected_cost",
+          "expected_handle_time_min",
+          "start_time_min",
+          "first_response_time_min",
+          "resolution_time_min",
+          "within_sla"
+        ],
+        "title": "TicketResult"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

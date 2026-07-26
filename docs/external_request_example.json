@@ -1,0 +1,46 @@
+{
+  "scenario_id": "external_example",
+  "planning_horizon_minutes": 60,
+  "tickets": [
+    {
+      "id": "T1",
+      "type": "incident",
+      "priority": "high",
+      "channel": "chat",
+      "sla_first_response_min": 15,
+      "sla_resolution_min": 120,
+      "arrival_min": 0
+    }
+  ],
+  "agents": [
+    {
+      "id": "A1",
+      "line": "L2",
+      "cost_per_minute": 8,
+      "skills": [
+        "incident"
+      ],
+      "max_priority": "critical",
+      "channels": [
+        "chat"
+      ],
+      "capacity_minutes": 60,
+      "max_concurrent_chats": 1,
+      "active_chats": 0
+    }
+  ],
+  "handle_time_minutes": {
+    "incident": {
+      "L1": 40,
+      "L2": 25,
+      "L3": 20
+    }
+  },
+  "config": {
+    "allow_queue": true,
+    "queue_penalty": 10000,
+    "sla_mode": "soft",
+    "sla_breach_penalty": 0,
+    "planning_horizon_minutes": 60
+  }
+}

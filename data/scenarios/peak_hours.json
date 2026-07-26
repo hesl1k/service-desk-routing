@@ -1,0 +1,23 @@
+{
+  "scenario_id": "peak_hours",
+  "scenario_name": "Пиковый поток",
+  "description": "Увеличенный поток обращений, при котором простая эвристика чаще занимает дорогие ресурсы.",
+  "config": {"allow_queue": true, "queue_penalty": 11000, "planning_horizon_minutes": 480},
+  "operators": [
+    {"id": "L1_FAST_EXP", "level": 1, "skills": ["question", "billing"], "channels": ["chat", "email"], "capacity_min": 360, "max_chat_slots": 5, "cost_per_minute": 9.0},
+    {"id": "L1_LOW", "level": 1, "skills": ["question", "billing"], "channels": ["chat", "email"], "capacity_min": 180, "max_chat_slots": 4, "cost_per_minute": 4.2},
+    {"id": "L2_EXP", "level": 2, "skills": ["incident", "request", "hardware"], "channels": ["chat", "email", "phone"], "capacity_min": 260, "max_chat_slots": 3, "cost_per_minute": 13.5},
+    {"id": "L2_LOW", "level": 2, "skills": ["incident", "request", "hardware"], "channels": ["chat", "email", "phone"], "capacity_min": 150, "max_chat_slots": 2, "cost_per_minute": 8.0},
+    {"id": "L3_NET", "level": 3, "skills": ["network", "incident", "hardware"], "channels": ["phone", "email"], "capacity_min": 180, "max_chat_slots": 0, "cost_per_minute": 19.0}
+  ],
+  "tickets": [
+    {"id": "P1", "level": 1, "required_skill": "billing", "channel": "chat", "duration_min": 25, "priority": "medium", "sla_resolution_min": 180},
+    {"id": "P2", "level": 1, "required_skill": "question", "channel": "email", "duration_min": 20, "priority": "low", "sla_resolution_min": 240},
+    {"id": "P3", "level": 2, "required_skill": "incident", "channel": "chat", "duration_min": 40, "priority": "high", "sla_resolution_min": 120},
+    {"id": "P4", "level": 2, "required_skill": "request", "channel": "phone", "duration_min": 35, "priority": "medium", "sla_resolution_min": 180},
+    {"id": "P5", "level": 2, "required_skill": "hardware", "channel": "email", "duration_min": 45, "priority": "high", "sla_resolution_min": 120},
+    {"id": "P6", "level": 1, "required_skill": "billing", "channel": "chat", "duration_min": 30, "priority": "medium", "sla_resolution_min": 180},
+    {"id": "P7", "level": 1, "required_skill": "question", "channel": "chat", "duration_min": 30, "priority": "medium", "sla_resolution_min": 180},
+    {"id": "P8", "level": 3, "required_skill": "network", "channel": "phone", "duration_min": 50, "priority": "critical", "sla_resolution_min": 90}
+  ]
+}

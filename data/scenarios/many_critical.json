@@ -1,0 +1,21 @@
+{
+  "scenario_id": "many_critical",
+  "scenario_name": "Много критичных обращений",
+  "description": "Критичные тикеты конкурируют за ограниченную мощность высоких линий поддержки.",
+  "config": {"allow_queue": true, "queue_penalty": 15000, "planning_horizon_minutes": 480},
+  "operators": [
+    {"id": "L2_EXP_CRIT", "level": 2, "skills": ["incident", "hardware"], "channels": ["chat", "phone", "email"], "capacity_min": 220, "max_chat_slots": 3, "cost_per_minute": 15.0},
+    {"id": "L2_LOW_CRIT", "level": 2, "skills": ["incident", "hardware"], "channels": ["chat", "phone", "email"], "capacity_min": 120, "max_chat_slots": 2, "cost_per_minute": 9.0},
+    {"id": "L3_NET_A", "level": 3, "skills": ["network", "incident", "hardware"], "channels": ["phone", "email", "chat"], "capacity_min": 180, "max_chat_slots": 1, "cost_per_minute": 21.0},
+    {"id": "L1_SERVICE", "level": 1, "skills": ["question", "billing"], "channels": ["email", "chat"], "capacity_min": 240, "max_chat_slots": 3, "cost_per_minute": 5.0}
+  ],
+  "tickets": [
+    {"id": "C1", "level": 3, "required_skill": "network", "channel": "phone", "duration_min": 45, "priority": "critical", "sla_resolution_min": 90},
+    {"id": "C2", "level": 2, "required_skill": "incident", "channel": "chat", "duration_min": 35, "priority": "critical", "sla_resolution_min": 90},
+    {"id": "C3", "level": 2, "required_skill": "hardware", "channel": "email", "duration_min": 40, "priority": "high", "sla_resolution_min": 120},
+    {"id": "C4", "level": 2, "required_skill": "incident", "channel": "phone", "duration_min": 30, "priority": "high", "sla_resolution_min": 120},
+    {"id": "C5", "level": 2, "required_skill": "hardware", "channel": "chat", "duration_min": 35, "priority": "high", "sla_resolution_min": 120},
+    {"id": "C6", "level": 1, "required_skill": "question", "channel": "email", "duration_min": 25, "priority": "medium", "sla_resolution_min": 240},
+    {"id": "C7", "level": 1, "required_skill": "billing", "channel": "chat", "duration_min": 20, "priority": "medium", "sla_resolution_min": 240}
+  ]
+}

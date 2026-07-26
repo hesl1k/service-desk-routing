@@ -1,0 +1,21 @@
+{
+  "scenario_id": "chat_overload",
+  "scenario_name": "Перегрузка чат-канала",
+  "description": "Большая часть обращений приходит в чат, где действует лимит параллельных обработок.",
+  "config": {"allow_queue": true, "queue_penalty": 10000, "planning_horizon_minutes": 480},
+  "operators": [
+    {"id": "CHAT_EXP", "level": 1, "skills": ["question", "billing", "incident"], "channels": ["chat", "email"], "capacity_min": 300, "max_chat_slots": 6, "cost_per_minute": 9.0},
+    {"id": "CHAT_LOW", "level": 1, "skills": ["question", "billing"], "channels": ["chat", "email"], "capacity_min": 120, "max_chat_slots": 4, "cost_per_minute": 4.0},
+    {"id": "L2_CHAT", "level": 2, "skills": ["incident", "request", "question"], "channels": ["chat", "phone", "email"], "capacity_min": 180, "max_chat_slots": 3, "cost_per_minute": 11.0},
+    {"id": "L3_PHONE", "level": 3, "skills": ["network", "incident"], "channels": ["phone", "email"], "capacity_min": 160, "max_chat_slots": 0, "cost_per_minute": 20.0}
+  ],
+  "tickets": [
+    {"id": "H1", "level": 1, "required_skill": "question", "channel": "chat", "duration_min": 20, "priority": "medium", "sla_resolution_min": 180},
+    {"id": "H2", "level": 1, "required_skill": "billing", "channel": "chat", "duration_min": 25, "priority": "medium", "sla_resolution_min": 180},
+    {"id": "H3", "level": 1, "required_skill": "question", "channel": "chat", "duration_min": 20, "priority": "low", "sla_resolution_min": 240},
+    {"id": "H4", "level": 1, "required_skill": "billing", "channel": "chat", "duration_min": 30, "priority": "medium", "sla_resolution_min": 180},
+    {"id": "H5", "level": 2, "required_skill": "incident", "channel": "chat", "duration_min": 35, "priority": "high", "sla_resolution_min": 120},
+    {"id": "H6", "level": 2, "required_skill": "request", "channel": "phone", "duration_min": 30, "priority": "high", "sla_resolution_min": 120},
+    {"id": "H7", "level": 1, "required_skill": "question", "channel": "email", "duration_min": 20, "priority": "low", "sla_resolution_min": 240}
+  ]
+}
